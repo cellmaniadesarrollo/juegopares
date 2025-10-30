@@ -243,59 +243,77 @@ ngAfterViewInit(): void {
 
 }
 private initVideoCarousel(carouselId: string): void {
-    const carouselEl = document.getElementById(carouselId);
-    if (!carouselEl) return;
+  const carouselEl = document.getElementById(carouselId);
+  if (!carouselEl) return;
 
-    const bsCarousel = new bootstrap.Carousel(carouselEl, {
-      interval: false,
-      ride: false,
-      wrap: true,
-      pause: false, // 👈 evita que se detenga al pasar el mouse
+  const bsCarousel = new bootstrap.Carousel(carouselEl, {
+    interval: false,
+    wrap: true,
+    pause: false,
+  });
+
+  const items = Array.from(carouselEl.querySelectorAll('.carousel-item'));
+  const videos = Array.from(carouselEl.querySelectorAll('video'));
+
+  // 🔹 Asegurar que todos los videos estén configurados correctamente
+  videos.forEach((video) => {
+    video.muted = true;
+    video.playsInline = true;
+    video.preload = 'auto';
+
+    // 🔸 Cuando termina un video → avanzar al siguiente
+    video.addEventListener('ended', () => {
+      bsCarousel.next();
     });
+  });
 
-    const videos = carouselEl.querySelectorAll('video');
+  // 🔹 Cuando cambia el slide → reproducir el video activo
+  carouselEl.addEventListener('slide.bs.carousel', (e: any) => {
+    // Pausar todos
+    videos.forEach((v) => {
+      v.pause();
+      v.currentTime = 0;
+    });
+  });
 
-    // 🔹 Asegura que los videos estén silenciados (necesario para autoplay)
-    videos.forEach((video: HTMLVideoElement) => {
-      video.muted = true;
-      video.playsInline = true;
+  carouselEl.addEventListener('slid.bs.carousel', () => {
+    const activeItem = carouselEl.querySelector('.carousel-item.active');
+    const activeVideo = activeItem?.querySelector('video') as HTMLVideoElement;
 
-      // Si un video termina, avanza al siguiente
-      video.addEventListener('ended', () => {
-        bsCarousel.next();
-      });
+    if (activeVideo) {
+      this.playVideoSafely(activeVideo, carouselId);
+    }
+  });
 
-      // 🔹 Si falla el autoplay, intenta reproducir de nuevo (Safari / Chrome mobile)
-      video.addEventListener('canplay', () => {
-        if (video.paused) {
-          const playPromise = video.play();
-          if (playPromise !== undefined) {
-            playPromise.catch(() => {
-              console.warn(`Autoplay bloqueado en ${carouselId}, reintentando...`);
-              setTimeout(() => video.play(), 500);
-            });
-          }
+  // 🔹 Iniciar el primer video manualmente
+  const firstVideo = carouselEl.querySelector('.carousel-item.active video') as HTMLVideoElement;
+  if (firstVideo) {
+    setTimeout(() => this.playVideoSafely(firstVideo, carouselId), 500);
+  }
+  videos.forEach((video) => {
+  video.addEventListener('ended', () => bsCarousel.next());
+});
+}
+
+/**
+ * Intenta reproducir el video con reintentos si falla el autoplay (Safari, Chrome Mobile, etc)
+ */
+private playVideoSafely(video: HTMLVideoElement, carouselId: string, retries = 3): void {
+  const tryPlay = () => {
+    const playPromise = video.play();
+    if (playPromise !== undefined) {
+      playPromise.catch(() => {
+        if (retries > 0) {
+          console.warn(`🔁 Reintentando autoplay en ${carouselId} (${retries} intentos restantes)`);
+          setTimeout(() => this.playVideoSafely(video, carouselId, retries - 1), 600);
+        } else {
+          console.warn(`⚠️ No se pudo reproducir el video en ${carouselId}`);
         }
       });
-    });
-
-    // Cuando cambia de slide, reproduce el nuevo video
-    carouselEl.addEventListener('slid.bs.carousel', () => {
-      const activeVideo = carouselEl.querySelector('.carousel-item.active video') as HTMLVideoElement;
-      if (activeVideo) {
-        activeVideo.currentTime = 0;
-        activeVideo.play().catch(() => {
-          console.warn(`No se pudo reproducir el video activo en ${carouselId}`);
-        });
-      }
-    });
-
-    // Inicia el primer video manualmente
-    const firstVideo = carouselEl.querySelector('.carousel-item.active video') as HTMLVideoElement;
-    if (firstVideo) {
-      setTimeout(() => firstVideo.play(), 300);
     }
-  }
+  };
+  tryPlay();
+}
   currentSlide = 0;
   intervalId: any;
 startCarousel(): void {
