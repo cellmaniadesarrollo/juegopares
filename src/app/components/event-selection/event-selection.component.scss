@@ -1,0 +1,92 @@
+// src/app/components/event-selection/event-selection.component.scss
+.event-selection-container {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background-attachment: fixed;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.event-card {
+  transition: all 0.3s ease;
+  cursor: pointer;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
+  
+  &:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 25px rgba(0,0,0,0.15) !important;
+  }
+  
+  &.selected {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 25px rgba(0,0,0,0.2) !important;
+    border-left-width: 6px !important;
+    
+    .card {
+      border: 2px solid #28a745;
+    }
+  }
+}
+
+.cursor-pointer {
+  cursor: pointer;
+}
+
+.selected-indicator {
+  animation: fadeIn 0.5s ease;
+}
+
+.btn-continue {
+  background: linear-gradient(135deg, #28a745, #20c997);
+  border: none;
+  color: white;
+  border-radius: 50px;
+  font-size: 1.1rem;
+  transition: all 0.3s ease;
+  box-shadow: 0 6px 20px rgba(40, 167, 69, 0.4);
+  
+  &:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(40, 167, 69, 0.6);
+  }
+  
+  &:disabled {
+    background: #6c757d;
+    transform: none;
+    box-shadow: none;
+    cursor: not-allowed;
+  }
+}
+
+.logo-container {
+  .logo-img {
+    filter: drop-shadow(0 4px 8px rgba(255,255,255,0.3));
+  }
+}
+
+.badge {
+  color: white;
+  font-size: 0.75rem;
+  padding: 0.35em 0.65em;
+}
+
+// Animaciones
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+// Responsive
+@media (max-width: 768px) {
+  .event-selection-container {
+    padding: 20px 0 !important;
+  }
+  
+  .event-card {
+    margin-bottom: 1rem;
+  }
+  
+  .btn-continue {
+    width: 100%;
+    font-size: 1rem;
+  }
+}

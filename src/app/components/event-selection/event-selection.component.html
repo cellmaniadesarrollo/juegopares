@@ -1,0 +1,140 @@
+<div class="event-selection-container min-vh-100 py-5">
+  <div class="container">
+    
+    <!-- Header -->
+    <div class="row justify-content-center mb-5">
+      <div class="col-12 col-lg-8 text-center">
+        <div class="logo-container mb-4">
+          <img 
+            src="https://teamcellmania-public.s3.us-east-1.amazonaws.com/eventologos/logo-teamcellmania.png" 
+            alt="TeamCellmania Logo" 
+            class="logo-img img-fluid"
+            style="max-height: 80px;">
+        </div>
+        <h1 class="display-5 fw-bold text-white mb-3">Selecciona la Feria</h1>
+        <p class="lead text-light">
+          Elige en qué feria quieres jugar el juego de pares
+        </p>
+      </div>
+    </div>
+
+    <!-- Loading -->
+    @if (loading) {
+      <div class="row justify-content-center">
+        <div class="col-12 col-md-6 text-center">
+          <div class="card">
+            <div class="card-body py-5">
+              <div class="spinner-border text-primary mb-3" role="status"></div>
+              <p class="mb-0">Cargando eventos disponibles...</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    }
+
+    <!-- Lista de Eventos -->
+    @if (!loading) {
+      <div class="row g-4 justify-content-center">
+        
+        <!-- Tarjeta de Evento -->
+        @for (event of events; track event.id) {
+          <div 
+            class="col-12 col-md-6 col-lg-4"
+            [class.selected]="selectedEvent?.id === event.id">
+            
+            <div 
+              class="event-card card h-100 shadow-sm border-0 cursor-pointer"
+              [style.border-left]="'4px solid ' +   '#667eea' "
+              (click)="selectEvent(event)">
+              
+              <div class="card-body p-4">
+                
+                <!-- Header de la tarjeta -->
+                <div class="event-header mb-3">
+                  <div class="d-flex justify-content-between align-items-start">
+                    <h5 class="card-title fw-bold text-dark mb-1">{{ event.name }}</h5>
+ 
+                  </div>
+                  <p class="text-muted small mb-2">
+                    <i class="fas fa-map-marker-alt me-1"></i>
+                    {{ event.location }}
+                  </p>
+                </div>
+
+                <!-- Información del evento -->
+                <div class="event-info">
+                  <p class="text-muted small mb-3">
+                    <i class="fas fa-calendar me-1"></i>
+                    {{ getEventDate(event) }}
+                  </p>
+                  <p class="card-text text-dark">
+                    {{ event.description }}
+                  </p>
+                  <p class="text-primary small fw-bold">
+                    <i class="fas fa-images me-1"></i>
+                    {{ getImageCount(event) }} empresas participantes
+                  </p>
+                </div>
+
+                <!-- Estado seleccionado -->
+                @if (selectedEvent?.id === event.id) {
+                  <div class="selected-indicator mt-3">
+                    <div class="d-flex align-items-center text-success">
+                      <i class="fas fa-check-circle me-2"></i>
+                      <span class="fw-bold">Seleccionado</span>
+                    </div>
+                  </div>
+                }
+
+              </div>
+            </div>
+          </div>
+        }
+
+      </div>
+    }
+
+    <!-- Sin eventos -->
+    @if (!loading && events.length === 0) {
+      <div class="row justify-content-center">
+        <div class="col-12 col-md-6">
+          <div class="card text-center">
+            <div class="card-body py-5">
+              <i class="fas fa-calendar-times display-1 text-muted mb-3"></i>
+              <h4 class="text-muted">No hay eventos disponibles</h4>
+              <p class="text-muted">No hay ferias activas en este momento.</p>
+              <button class="btn btn-primary mt-3" (click)="initializeSampleEvents()">
+                Cargar Datos de Ejemplo
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    }
+
+    <!-- Botón de Continuar -->
+    @if (!loading && events.length > 0) {
+      <div class="row justify-content-center mt-5">
+        <div class="col-12 col-md-6 text-center">
+          <button 
+            class="btn btn-continue btn-lg px-5 py-3 fw-bold"
+            [disabled]="!selectedEvent"
+            (click)="startGame()">
+            <i class="fas fa-play me-2"></i>
+            JUGAR EN {{ selectedEvent?.name?.toUpperCase() || 'FERIA' }}
+          </button>
+          
+          <div class="mt-3">
+            <button 
+              class="btn btn-outline-light"
+              routerLink="/welcome">
+              <i class="fas fa-arrow-left me-2"></i>
+              Volver al Inicio
+            </button>
+          </div>
+        </div>
+      </div>
+    }
+
+  </div>
+</div>

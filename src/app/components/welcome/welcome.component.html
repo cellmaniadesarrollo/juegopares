@@ -1,0 +1,86 @@
+<!-- src/app/components/welcome/welcome.component.html -->
+<div class="welcome-container min-vh-100 d-flex align-items-center justify-content-center">
+  <div class="container">
+    <div class="row justify-content-center">
+      <div class="col-12 col-md-8 col-lg-6">
+        
+        <!-- Card Principal -->
+        <div class="card welcome-card shadow-lg border-0">
+          <div class="card-body text-center p-5">
+            
+            <!-- Logo -->
+            <div class="logo-container mb-4">
+              <img 
+                src="https://teamcellmania-public.s3.us-east-1.amazonaws.com/eventologos/logo-teamcellmania.png" 
+                alt="TeamCellmania Logo" 
+                class="logo-img img-fluid"
+                style="max-height: 120px;">
+              <div class="logo-text mt-2">
+                <h1 class="display-4 fw-bold text-primary mb-0">TEAMCELLMANIA</h1>
+              </div>
+            </div>
+
+            <!-- Separador -->
+            <div class="divider my-4">
+              <div class="divider-line"></div>
+              <div class="divider-icon">🎯</div>
+              <div class="divider-line"></div>
+            </div>
+
+            <!-- Mensaje de Bienvenida -->
+            <div class="welcome-message mb-5">
+              <h2 class="fw-bold text-dark mb-3">¡Bienvenido al Juego de Pares!</h2>
+              <p class="lead text-muted mb-2">
+                Presentado por <span class="text-primary fw-bold">TEAMCELLMANIA</span>
+              </p>
+              <p class="h5 text-success fw-bold">
+                Por motivo de las Fiestas de <span class="text-danger">AZOGUES</span>
+              </p>
+            </div>
+
+            <!-- Información del Juego -->
+            <div class="game-info mb-4 p-4 bg-light rounded">
+              <h4 class="fw-bold text-dark mb-3">🎮 ¿Cómo Jugar?</h4>
+              <div class="row text-start">
+                <div class="col-md-6 mb-2">
+                  <i class="fas fa-mouse-pointer text-primary me-2"></i>
+                  Encuentra las parejas iguales
+                </div>
+                <div class="col-md-6 mb-2">
+                  <i class="fas fa-clock text-primary me-2"></i>
+                  Completa en el menor tiempo
+                </div>
+                <div class="col-md-6 mb-2">
+                  <i class="fas fa-star text-primary me-2"></i>
+                  Gana puntos por cada acierto
+                </div>
+                <div class="col-md-6 mb-2">
+                  <i class="fas fa-trophy text-primary me-2"></i>
+                  ¡Compite por el primer lugar!
+                </div>
+              </div>
+            </div>
+
+            <!-- Botón de Empezar -->
+            <div class="start-button-container">
+              <button 
+                class="btn btn-start btn-lg px-5 py-3 fw-bold"
+                routerLink="/select-event">
+                🎯 EMPEZAR JUEGO
+              </button>
+            </div>
+
+            <!-- Footer -->
+            <div class="footer mt-5 pt-4 border-top">
+              <p class="text-muted small">
+                Organizado por TeamCellmania • Fiestas de Azogues 2025
+              </p>
+            </div>
+
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>

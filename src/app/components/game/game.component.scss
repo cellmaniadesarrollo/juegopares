@@ -1,0 +1,484 @@
+/* ===================================================================
+   🎥 PANTALLA INICIAL CON CARRUSEL Y BOTÓN DE INICIO
+   =================================================================== */
+/* ===================================================================
+   🎥 PANTALLA INICIAL CON CARRUSEL Y BOTÓN DE INICIO
+   =================================================================== */
+.intro-layout {
+  background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden; // evita scroll innecesario
+
+  .row {
+    width: 100%;
+    max-width: 1400px;
+    height: 100vh; // 🧩 fila de altura completa
+    display: flex;
+    align-items: stretch; // asegura que las columnas crezcan igual
+  }
+}
+
+/* 🎬 Columnas de banners */
+.banner-col {
+  background: rgba(0, 0, 0, 0.55);
+  border-radius: 0; // se puede mantener plano si quieres continuidad
+  padding: 20px;
+  box-shadow: inset 0 0 25px rgba(0, 0, 0, 0.3);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between; // distribuye verticalmente
+  height: 100%; // importante
+  text-align: center;
+
+  h4 {
+    color: #fff;
+  }
+
+  .banner-logo {
+    width: 250px;
+    height: 120px; 
+  }
+
+ video {
+    width: 100%;
+    height: 450px;
+    max-height: 80vh;         // evita que se salga del contenedor
+    border-radius: 10px;
+    background: #000;
+    object-fit: cover;         // llena el espacio sin distorsionar
+    aspect-ratio: 9 / 16;      // formato vertical tipo TikTok
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.3);
+     object-fit: cover;
+  }
+
+  // ✅ si quieres evitar que se reproduzcan todos a la vez, puedes agregar:
+  .carousel-item video {
+    display: block;
+  }
+  .social-icons {
+    i {
+      font-size: 1.5rem;
+      color: #fff;
+      transition: color 0.3s;
+      &:hover {
+        color: #ffd700;
+      }
+    }
+  }
+}
+
+/* 🎠 Carrusel central */
+.central-col {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  padding: 20px;
+}
+
+/* 🎠 Carrusel central */
+.intro-carousel {
+  position: relative;
+  width: 100%;
+  max-width: 700px;
+  height: 45vh;
+  margin: 0 auto;
+  border-radius: 12px;
+  overflow: hidden;
+  background: #ffffff;
+
+  .carousel-inner {
+    height: 100%;
+    position: relative; 
+  }
+
+.carousel-item {
+  height: 50vh; /* altura moderada del carrusel */
+  background-color: #ffffff; /* fondo neutro */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.carousel-item img {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain; /* ✅ muestra la imagen completa sin recortarla */
+  object-position: center;
+  background-color: #ffffff; /* rellena con negro las zonas vacías */
+}
+
+  .carousel-item.active {
+    position: relative;
+    opacity: 1;
+    z-index: 1;
+  }
+
+  .carousel-media {
+    width: 100%;
+    height: 100%;
+    object-fit: contain; // ✅ muestra imagen completa sin recorte
+    background-color: #000;
+  }
+
+  .carousel-control-prev-icon,
+  .carousel-control-next-icon {
+    filter: invert(1);
+  }
+}
+
+/* 🖼️ Imagen del evento */
+.event-image {
+  width: 100%;
+  max-width: 400px;
+  height: 30vh; // 🧩 fija altura proporcional
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  img {
+    width: 100%;
+    height: 100%;
+    border-radius: 12px;
+    object-fit: contain;
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.3);
+  }
+}
+
+/* 📱 Responsive */
+@media (max-width: 992px) {
+  .intro-layout {
+    .row {
+      flex-direction: column;
+      height: auto;
+    }
+
+    .banner-col {
+      height: auto;
+      margin-bottom: 30px;
+    }
+
+    .intro-carousel {
+      height: 300px;
+    }
+  }
+}
+/* ===================================================================
+   ⚙️ VARIABLES DE CONFIGURACIÓN
+   =================================================================== */
+$sidebar-width: 220px;
+$sidebar-padding: 15px;
+$logo-max-width: 80%;
+
+/* ===================================================================
+   🎮 CONTENEDOR PRINCIPAL
+   =================================================================== */
+.game-container {
+  background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  font-family: 'Poppins', sans-serif;
+  color: #fff;
+}
+
+/* ===================================================================
+   🔄 PANTALLA DE CARGA Y MENSAJES DE ERROR
+   =================================================================== */
+.loading-screen {
+  background: rgba(0, 0, 0, 0.7);
+  color: white;
+  font-size: 1.2rem;
+}
+
+.alert {
+  font-size: 1rem;
+}
+
+/* ===================================================================
+   🧩 LAYOUT DEL TABLERO PRINCIPAL
+   =================================================================== */
+.game-board-layout {
+  display: flex;
+  width: 100%;
+  height: 100vh;
+  overflow: hidden;
+  align-items: stretch;
+}
+
+/* ===================================================================
+   📌 SIDEBAR IZQUIERDO
+   =================================================================== */
+.game-sidebar-left {
+  width: $sidebar-width;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  height: 100vh;
+  padding: $sidebar-padding;
+
+  .sidebar-top {
+    text-align: center;
+
+    img {
+      width: 100%;
+      max-width: $logo-max-width;
+      height: auto;
+      margin-bottom: 10px;
+      object-fit: contain;
+    }
+
+    h5,
+    p {
+      margin: 0;
+      font-weight: 500;
+    }
+  }
+
+  .socials {
+    margin-top: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    text-align: center;
+
+    a {
+      color: #fff;
+      text-decoration: none;
+      font-size: 0.9rem;
+      display: flex;
+      align-items: center;
+      justify-content: flex-start;
+      gap: 8px;
+
+      i {
+        font-size: 1.2rem;
+      }
+
+      &:hover {
+        color: #ffd700;
+      }
+    }
+  }
+}
+
+/* ===================================================================
+   🧮 SIDEBAR DERECHO (INFORMACIÓN)
+   =================================================================== */
+.game-sidebar-right {
+  width: $sidebar-width;
+  background: rgba(255, 255, 255, 0.85);
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: center;
+  padding: $sidebar-padding;
+  gap: 15px;
+
+  .info-item {
+    width: 100%;
+    text-align: center;
+  }
+
+  .info-label {
+    font-weight: 500;
+    color: #333;
+  }
+
+  .info-value {
+    font-size: 1.2rem;
+  }
+}
+
+/* ===================================================================
+   🧠 TABLERO DE CARTAS
+   =================================================================== */
+.game-grid-container {
+  flex-grow: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 20px;
+  overflow: hidden;
+}
+
+.cards-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1.5vw;
+  width: 100%;
+  max-width: 80vh;
+  aspect-ratio: 1 / 1;
+  margin: 0 auto;
+  justify-items: center;
+  align-items: center;
+}
+
+/* ===================================================================
+   🃏 CARTAS DEL JUEGO
+   =================================================================== */
+.game-card {
+  width: 100%;
+  aspect-ratio: 3 / 4;
+  perspective: 800px;
+  position: relative;
+  cursor: pointer;
+
+  .card-inner {
+    position: absolute;
+    inset: 0;
+    transform-style: preserve-3d;
+    transition: transform 0.6s ease;
+  }
+
+  &.flipped .card-inner {
+    transform: rotateY(180deg);
+  }
+
+  .card-front,
+  .card-back {
+    position: absolute;
+    inset: 0;
+    border-radius: 12px;
+    backface-visibility: hidden;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .card-front {
+    background: rgba(255, 255, 255, 0.1);
+    border: 2px solid #555;
+
+    .front-logo {
+      width: 80%;
+      height: auto;
+      object-fit: contain;
+      filter: brightness(0) invert(1);
+    }
+  }
+
+  .card-back {
+    transform: rotateY(180deg);
+    background: #fff;
+    color: #000;
+    flex-direction: column;
+    border: 2px solid #eee;
+
+    .card-image {
+      width: 100%;
+      height: 70%;
+      object-fit: cover;
+      border-bottom: 2px solid #ddd;
+    }
+  }
+}
+
+/* ===================================================================
+   🏁 PANTALLA DE JUEGO COMPLETADO
+   =================================================================== */
+.completion-screen {
+  background: linear-gradient(135deg, #141e30, #243b55);
+  color: #fff;
+
+  .completion-card {
+    background: rgba(255, 255, 255, 0.9);
+    color: #000;
+    border-radius: 20px;
+    max-width: 400px;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.4);
+    animation: fadeInUp 0.6s ease;
+  }
+
+  .btn {
+    font-weight: 600;
+    border-radius: 8px;
+    padding: 10px 18px;
+  }
+}
+
+/* ===================================================================
+   ✨ ANIMACIONES
+   =================================================================== */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(40px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ===================================================================
+   📱 RESPONSIVE
+   =================================================================== */
+@media (max-width: 768px) {
+  .game-board-layout {
+    flex-direction: column;
+    height: auto;
+  }
+
+  .game-sidebar-left,
+  .game-sidebar-right {
+    width: 100%;
+    height: auto;
+    flex-direction: row;
+    justify-content: space-around;
+    padding: 10px;
+  }
+
+  .socials {
+    flex-direction: row;
+  }
+
+  .cards-grid {
+    grid-template-columns: repeat(3, 100px);
+    grid-gap: 10px;
+  }
+
+  .game-card {
+    width: 100px;
+    height: 140px;
+  }
+}
+
+/* ===================================================================
+   🖼️ MINI CARRUSEL EN SIDEBAR IZQUIERDO
+   =================================================================== */
+.image-carousel {
+  width: 100%;
+  height: 110px;
+  overflow: hidden;
+  margin-top: 15px;
+  border-radius: 10px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+
+  .carousel-track {
+    display: flex;
+    flex-direction: column;
+    transition: transform 0.4s ease-in-out;
+  }
+
+  .carousel-item {
+    flex: 0 0 110px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    img {
+      height: 100%;
+      width: auto;
+      object-fit: cover;
+      border-radius: 8px;
+    }
+  }
+}
