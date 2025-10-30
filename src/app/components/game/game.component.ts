@@ -16,6 +16,7 @@ import { Carousel } from 'bootstrap';
   styleUrl: './game.component.scss'
 })
 export class GameComponent {
+  
    @ViewChild('videoCarouselLeft', { static: false }) carouselElement!: ElementRef;
    eventId!: string;
   event: any;
@@ -233,87 +234,84 @@ export class GameComponent {
  carouselIndex = 0;
 carouselInterval?: Subscription;
 
-ngAfterViewInit(): void {
-  // Inicia el carrusel automático
- // this.startCarousel();
-    this.initVideoCarousel('videoCarouselLeft1');
-    this.initVideoCarousel('videoCarouselLeft');
 
-  
 
-}
-private initVideoCarousel(carouselId: string): void {
-  const carouselEl = document.getElementById(carouselId);
-  if (!carouselEl) return;
 
-  const bsCarousel = new bootstrap.Carousel(carouselEl, {
-    interval: false,
-    wrap: true,
-    pause: false,
-  });
 
-  const items = Array.from(carouselEl.querySelectorAll('.carousel-item'));
-  const videos = Array.from(carouselEl.querySelectorAll('video'));
 
-  // 🔹 Asegurar que todos los videos estén configurados correctamente
-  videos.forEach((video) => {
-    video.muted = true;
-    video.playsInline = true;
-    video.preload = 'auto';
+  // 🎥 Lista de videos (lado izquierdo)
+  videoUrlsLeft: string[] = [
+    'https://teamcellmania-public.s3.us-east-1.amazonaws.com/eventosvideos/cellmania/WhatsApp+Video+2025-10-29+at+17.11.37.mp4',
+    'https://teamcellmania-public.s3.us-east-1.amazonaws.com/eventosvideos/cellmania/WhatsApp+Video+2025-10-29+at+17.12.02.mp4',
+    'https://teamcellmania-public.s3.us-east-1.amazonaws.com/eventosvideos/cellmania/WhatsApp+Video+2025-10-29+at+17.12.05+(1).mp4',
+    'https://teamcellmania-public.s3.us-east-1.amazonaws.com/eventosvideos/cellmania/WhatsApp+Video+2025-10-29+at+17.12.05.mp4',
+    'https://teamcellmania-public.s3.us-east-1.amazonaws.com/eventosvideos/cellmania/WhatsApp+Video+2025-10-29+at+17.12.28.mp4'
+  ];
+  currentVideoLeft = 0;
+  @ViewChild('videoPlayerLeft') videoPlayerLeft!: ElementRef<HTMLVideoElement>;
 
-    // 🔸 Cuando termina un video → avanzar al siguiente
-    video.addEventListener('ended', () => {
-      bsCarousel.next();
-    });
-  });
+  // 🎥 Lista de videos (lado derecho)
+  videoUrlsRight: string[] = [
+    'https://teamcellmania-public.s3.us-east-1.amazonaws.com/eventosvideos/WhatsApp+Video+2025-10-29+at+17.06.56.mp4',
+    'https://teamcellmania-public.s3.us-east-1.amazonaws.com/eventosvideos/WhatsApp+Video+2025-10-29+at+17.06.28.mp4',
+    'https://teamcellmania-public.s3.us-east-1.amazonaws.com/eventosvideos/WhatsApp+Video+2025-10-29+at+17.09.59.mp4',
+    'https://teamcellmania-public.s3.us-east-1.amazonaws.com/eventosvideos/WhatsApp+Video+2025-10-29+at+17.06.25.mp4'
+  ];
+  currentVideoRight = 0;
+  @ViewChild('videoPlayerRight') videoPlayerRight!: ElementRef<HTMLVideoElement>;
 
-  // 🔹 Cuando cambia el slide → reproducir el video activo
-  carouselEl.addEventListener('slide.bs.carousel', (e: any) => {
-    // Pausar todos
-    videos.forEach((v) => {
-      v.pause();
-      v.currentTime = 0;
-    });
-  });
-
-  carouselEl.addEventListener('slid.bs.carousel', () => {
-    const activeItem = carouselEl.querySelector('.carousel-item.active');
-    const activeVideo = activeItem?.querySelector('video') as HTMLVideoElement;
-
-    if (activeVideo) {
-      this.playVideoSafely(activeVideo, carouselId);
-    }
-  });
-
-  // 🔹 Iniciar el primer video manualmente
-  const firstVideo = carouselEl.querySelector('.carousel-item.active video') as HTMLVideoElement;
-  if (firstVideo) {
-    setTimeout(() => this.playVideoSafely(firstVideo, carouselId), 500);
+  ngAfterViewInit(): void {
+    this.playVideo('left');
+    this.playVideo('right');
   }
-  videos.forEach((video) => {
-  video.addEventListener('ended', () => bsCarousel.next());
-});
-}
 
-/**
- * Intenta reproducir el video con reintentos si falla el autoplay (Safari, Chrome Mobile, etc)
- */
-private playVideoSafely(video: HTMLVideoElement, carouselId: string, retries = 3): void {
-  const tryPlay = () => {
-    const playPromise = video.play();
-    if (playPromise !== undefined) {
-      playPromise.catch(() => {
-        if (retries > 0) {
-          console.warn(`🔁 Reintentando autoplay en ${carouselId} (${retries} intentos restantes)`);
-          setTimeout(() => this.playVideoSafely(video, carouselId, retries - 1), 600);
-        } else {
-          console.warn(`⚠️ No se pudo reproducir el video en ${carouselId}`);
-        }
-      });
+  /**
+   * Reproduce el video actual, reintentando si el autoplay falla.
+   */
+  private playVideo(side: 'left' | 'right', retries = 3): void {
+    const videoPlayer =
+      side === 'left' ? this.videoPlayerLeft?.nativeElement : this.videoPlayerRight?.nativeElement;
+    if (!videoPlayer) return;
+
+    videoPlayer.muted = true;
+    videoPlayer.playsInline = true;
+    videoPlayer.currentTime = 0;
+
+    const tryPlay = () => {
+      const promise = videoPlayer.play();
+      if (promise !== undefined) {
+        promise.catch(() => {
+          if (retries > 0) {
+            console.warn(`Reintentando autoplay (${side})...`);
+            setTimeout(() => this.playVideo(side, retries - 1), 600);
+          } else {
+            console.warn(`No se pudo reproducir el video (${side}).`);
+          }
+        });
+      }
+    };
+    tryPlay();
+  }
+
+  /**
+   * Avanza al siguiente video del lado indicado.
+   */
+  nextVideo(side: 'left' | 'right'): void {
+    if (side === 'left') {
+      this.currentVideoLeft = (this.currentVideoLeft + 1) % this.videoUrlsLeft.length;
+      this.playVideo('left');
+    } else {
+      this.currentVideoRight = (this.currentVideoRight + 1) % this.videoUrlsRight.length;
+      this.playVideo('right');
     }
-  };
-  tryPlay();
-}
+  }
+
+
+
+
+
+
+ 
   currentSlide = 0;
   intervalId: any;
 startCarousel(): void {
