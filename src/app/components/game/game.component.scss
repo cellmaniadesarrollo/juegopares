@@ -1,84 +1,21 @@
 /* ===================================================================
    🎥 PANTALLA INICIAL CON CARRUSEL Y BOTÓN DE INICIO
    =================================================================== */
-/* ===================================================================
-   🎥 PANTALLA INICIAL CON CARRUSEL Y BOTÓN DE INICIO
-   =================================================================== */
 .intro-layout {
   background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
   min-height: 100vh;
   display: flex;
   align-items: center;
   justify-content: center;
-  overflow: hidden; // evita scroll innecesario
+  overflow: hidden;
 
   .row {
     width: 100%;
     max-width: 1400px;
-    height: 100vh; // 🧩 fila de altura completa
+    height: 100vh;
     display: flex;
-    align-items: stretch; // asegura que las columnas crezcan igual
+    align-items: stretch;
   }
-}
-
-/* 🎬 Columnas de banners */
-.banner-col {
-  background: rgba(0, 0, 0, 0.55);
-  border-radius: 0; // se puede mantener plano si quieres continuidad
-  padding: 20px;
-  box-shadow: inset 0 0 25px rgba(0, 0, 0, 0.3);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: space-between; // distribuye verticalmente
-  height: 100%; // importante
-  text-align: center;
-
-  h4 {
-    color: #fff;
-  }
-
-  .banner-logo {
-    width: 250px;
-    height: 120px; 
-  }
-
- video {
-    width: 100%;
-    height: 450px;
-    max-height: 80vh;         // evita que se salga del contenedor
-    border-radius: 10px;
-    background: #000;
-    object-fit: cover;         // llena el espacio sin distorsionar
-    aspect-ratio: 9 / 16;      // formato vertical tipo TikTok
-    box-shadow: 0 0 15px rgba(0, 0, 0, 0.3);
-     object-fit: cover;
-  }
-
-  // ✅ si quieres evitar que se reproduzcan todos a la vez, puedes agregar:
-  .carousel-item video {
-    display: block;
-  }
-  .social-icons {
-    i {
-      font-size: 1.5rem;
-      color: #fff;
-      transition: color 0.3s;
-      &:hover {
-        color: #ffd700;
-      }
-    }
-  }
-}
-
-/* 🎠 Carrusel central */
-.central-col {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  height: 100%;
-  padding: 20px;
 }
 
 /* 🎠 Carrusel central */
@@ -94,24 +31,28 @@
 
   .carousel-inner {
     height: 100%;
-    position: relative; 
+    position: relative;
   }
 
-.carousel-item {
-  height: 50vh; /* altura moderada del carrusel */
-  background-color: #ffffff; /* fondo neutro */
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
+  .carousel-item {
+    height: 50vh;
+    /* altura moderada del carrusel */
+    background-color: #243b55;
+    /* fondo neutro */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
 
-.carousel-item img {
-  max-width: 100%;
-  max-height: 100%;
-  object-fit: contain; /* ✅ muestra la imagen completa sin recortarla */
-  object-position: center;
-  background-color: #ffffff; /* rellena con negro las zonas vacías */
-}
+  .carousel-item img {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+    /* ✅ muestra la imagen completa sin recortarla */
+    object-position: center;
+    background-color: #00000000;
+    /* rellena con negro las zonas vacías */
+  }
 
   .carousel-item.active {
     position: relative;
@@ -122,8 +63,7 @@
   .carousel-media {
     width: 100%;
     height: 100%;
-    object-fit: contain; // ✅ muestra imagen completa sin recorte
-    background-color: #000;
+    object-fit: contain; // ✅ muestra imagen completa sin recorte background-color: #000; 
   }
 
   .carousel-control-prev-icon,
@@ -136,7 +76,7 @@
 .event-image {
   width: 100%;
   max-width: 400px;
-  height: 30vh; // 🧩 fija altura proporcional
+  height: 30vh; // 🧩 fija altura proporcional 
   display: flex;
   align-items: center;
   justify-content: center;
@@ -168,6 +108,150 @@
     }
   }
 }
+
+
+/* 🎬 Columnas de banners con carrusel de video */
+.banner-col {
+  background: rgba(0, 0, 0, 0.55);
+  padding: 20px;
+  box-shadow: inset 0 0 25px rgba(0, 0, 0, 0.3);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  height: 100%;
+  text-align: center;
+  position: relative;
+  border-radius: 10px;
+
+  h4 {
+    color: #fff;
+  }
+
+  .banner-logo {
+    width: 250px;
+    height: 120px;
+  }
+
+  /* 🎥 Contenedor del video */
+  .video-rotator {
+    position: relative;
+    width: 100%;
+    max-width: 350px;
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.3);
+
+    video {
+      width: 100%;
+      height: 500px;
+      object-fit: cover;
+      aspect-ratio: 9 / 16;
+      background: #000;
+    }
+
+    /* 🌟 Redes sociales sobre el video */
+    .social-overlay {
+      position: absolute;
+      bottom: 15px;
+      left: 10px;
+      right: 10px;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 10px;
+      color: #fff;
+      font-family: 'Poppins', sans-serif;
+      font-size: 1rem;
+      z-index: 2;
+
+      .social-item {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        background: rgba(0, 0, 0, 0.5);
+        padding: 5px 10px;
+        border-radius: 8px;
+        transition: transform 0.3s ease;
+
+        i {
+          font-size: 1.2rem;
+          color: #ffd700;
+        }
+
+        span {
+          color: #fff;
+          font-weight: 500;
+        }
+
+        &:hover {
+          transform: scale(1.05);
+        }
+      }
+    }
+  }
+}
+
+/* 🎠 Columna central con botón o información del evento */
+.central-col {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  padding: 20px;
+  color: #fff;
+
+  .event-image {
+    width: 100%;
+    max-width: 400px;
+    height: 30vh;
+
+    img {
+      width: 100%;
+      height: 100%;
+      border-radius: 12px;
+      object-fit: contain;
+      box-shadow: 0 0 15px rgba(0, 0, 0, 0.3);
+    }
+  }
+
+  .start-btn {
+    background: #ffd700;
+    color: #000;
+    border: none;
+    padding: 12px 30px;
+    border-radius: 8px;
+    font-weight: bold;
+    cursor: pointer;
+    margin-top: 20px;
+    transition: all 0.3s ease;
+
+    &:hover {
+      background: #e5c100;
+    }
+  }
+}
+
+/* 📱 Responsive */
+@media (max-width: 992px) {
+  .intro-layout {
+    .row {
+      flex-direction: column;
+      height: auto;
+    }
+
+    .banner-col {
+      height: auto;
+      margin-bottom: 30px;
+    }
+
+    .video-rotator video {
+      height: 350px;
+    }
+  }
+}
+
 /* ===================================================================
    ⚙️ VARIABLES DE CONFIGURACIÓN
    =================================================================== */
@@ -412,6 +496,7 @@ $logo-max-width: 80%;
     opacity: 0;
     transform: translateY(40px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);

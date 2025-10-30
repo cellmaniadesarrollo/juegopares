@@ -23,30 +23,23 @@
     <div class="row align-items-center justify-content-center">
 
       <!-- 🟥 Columna izquierda (banner) -->
+      <!-- 🟥 Columna izquierda -->
       <div class="col-12 col-lg-3 mb-4 mb-lg-0 banner-col">
         <img src="https://teamcellmania-public.s3.us-east-1.amazonaws.com/eventologos/logo-teamcellmania.png" alt="Logo"
           class="banner-logo mb-3" />
 
-  <!-- 🎬 Simulación de carrusel de videos (izquierda) -->
-  <div class="video-rotator" *ngIf="videoUrlsLeft.length > 0">
-    <video
-      #videoPlayerLeft
-      [src]="videoUrlsLeft[currentVideoLeft]"
-      autoplay
-      muted
-      playsinline
-      (ended)="nextVideo('left')"
-    ></video>
-  </div>
+        <!-- 🎬 Carrusel de videos con redes sobrepuestas -->
+        <div class="video-rotator" *ngIf="videoUrlsLeft.length > 0">
+          <video #videoPlayerLeft [src]="videoUrlsLeft[currentVideoLeft]" autoplay muted playsinline
+            (ended)="nextVideo('left')"></video>
 
-
-
-        <!-- 🔗 Redes -->
-        <div class="social-icons mt-3 d-flex justify-content-center gap-3">
-          <a href="https://facebook.com" target="_blank"><i class="bi bi-facebook"></i></a>
-          <a href="https://instagram.com" target="_blank"><i class="bi bi-instagram"></i></a>
-          <a href="https://tiktok.com" target="_blank"><i class="bi bi-tiktok"></i></a>
-          <a href="https://youtube.com" target="_blank"><i class="bi bi-youtube"></i></a>
+          <!-- 🌟 Redes sociales sobre el video -->
+          <div class="social-overlay">
+            <div class="social-item"><i class="fab fa-tiktok"></i><span>&#64;teamcellmania_13</span></div>
+            <div class="social-item"><i class="fab fa-instagram"></i><span>&#64;teamcellmania</span></div>
+            <div class="social-item"><i class="fab fa-facebook"></i><span>TeamCellmania</span></div>
+            <div class="social-item"><i class="fab fa-youtube"></i><span>&#64;teamcellmania877</span></div>
+          </div>
         </div>
       </div>
 
@@ -68,12 +61,7 @@
             </div>
           </div>
 
-          <button class="carousel-control-prev" type="button" (click)="prevSlide()">
-            <span class="carousel-control-prev-icon"></span>
-          </button>
-          <button class="carousel-control-next" type="button" (click)="nextSlide()">
-            <span class="carousel-control-next-icon"></span>
-          </button>
+ 
         </div>
 
 
@@ -90,31 +78,20 @@
 
       <!-- 🟦 Columna derecha (banner) -->
       <div class="col-12 col-lg-3 mb-4 mb-lg-0 banner-col">
-
         <img src="https://teamcellmania-public.s3.us-east-1.amazonaws.com/eventologos/Chevalier+blanco.png" alt="Logo"
           class="banner-logo mb-3" />
 
+        <div class="video-rotator" *ngIf="videoUrlsRight.length > 0">
+          <video #videoPlayerRight [src]="videoUrlsRight[currentVideoRight]" autoplay muted playsinline
+            (ended)="nextVideo('right')"></video>
 
-  <!-- 🎬 Simulación de carrusel de videos (derecha) -->
-  <div class="video-rotator" *ngIf="videoUrlsRight.length > 0">
-    <video
-      #videoPlayerRight
-      [src]="videoUrlsRight[currentVideoRight]"
-      autoplay
-      muted
-      playsinline
-      (ended)="nextVideo('right')"
-    ></video>
-  </div>
-
-
-
-        <!-- 🔗 Redes -->
-        <div class="social-icons mt-3 d-flex justify-content-center gap-3">
-          <a href="https://facebook.com" target="_blank"><i class="bi bi-facebook"></i></a>
-          <a href="https://instagram.com" target="_blank"><i class="bi bi-instagram"></i></a>
-          <a href="https://tiktok.com" target="_blank"><i class="bi bi-tiktok"></i></a>
-          <a href="https://youtube.com" target="_blank"><i class="bi bi-youtube"></i></a>
+          <!-- 🌟 Redes sociales sobre el video -->
+          <div class="social-overlay">
+            <div class="social-item"><i class="fab fa-tiktok"></i><span>&#64;chevalierbarber</span></div>
+            <div class="social-item"><i class="fab fa-instagram"></i><span>&#64;chevalier_barber</span></div>
+            <div class="social-item"><i class="fab fa-facebook"></i><span>Chevalier barber/shop </span></div>
+            <div class="social-item"><i class="fab fa-youtube"></i><span>&#64;ChevalierBarberShop</span></div>
+          </div>
         </div>
       </div>
     </div>
