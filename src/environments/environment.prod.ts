@@ -1,11 +1,11 @@
 export const environment = {
   production: true,
-  firebaseConfig: {
-    apiKey: "tu-api-key-real",
-    authDomain: "tu-proyecto-real.firebaseapp.com",
-    projectId: "tu-proyecto-real-12345",
-    storageBucket: "tu-proyecto-real.appspot.com",
-    messagingSenderId: "123456789012",
-    appId: "1:123456789012:web:abcdef123456789"
+  firebaseConfig: { 
+  apiKey: "AIzaSyAV5FfxoqEfeT2agv-Q_RQsVS1btLzio_c",
+  authDomain: "juegopares.firebaseapp.com",
+  projectId: "juegopares",
+  storageBucket: "juegopares.firebasestorage.app",
+  messagingSenderId: "230415059419",
+  appId: "1:230415059419:web:59d6aa213c7dd723547ffe" 
   }
 };
