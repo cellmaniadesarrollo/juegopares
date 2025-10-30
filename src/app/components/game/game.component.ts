@@ -236,25 +236,66 @@ carouselInterval?: Subscription;
 ngAfterViewInit(): void {
   // Inicia el carrusel automático
  // this.startCarousel();
+    this.initVideoCarousel('videoCarouselLeft1');
+    this.initVideoCarousel('videoCarouselLeft');
 
+  
 
- const carouselEl = document.getElementById('videoCarouselLeft');
+}
+private initVideoCarousel(carouselId: string): void {
+    const carouselEl = document.getElementById(carouselId);
     if (!carouselEl) return;
 
     const bsCarousel = new bootstrap.Carousel(carouselEl, {
-      interval: false, // desactivar cambio automático
-      ride: false
+      interval: false,
+      ride: false,
+      wrap: true,
+      pause: false, // 👈 evita que se detenga al pasar el mouse
     });
 
     const videos = carouselEl.querySelectorAll('video');
 
+    // 🔹 Asegura que los videos estén silenciados (necesario para autoplay)
     videos.forEach((video: HTMLVideoElement) => {
+      video.muted = true;
+      video.playsInline = true;
+
+      // Si un video termina, avanza al siguiente
       video.addEventListener('ended', () => {
         bsCarousel.next();
       });
+
+      // 🔹 Si falla el autoplay, intenta reproducir de nuevo (Safari / Chrome mobile)
+      video.addEventListener('canplay', () => {
+        if (video.paused) {
+          const playPromise = video.play();
+          if (playPromise !== undefined) {
+            playPromise.catch(() => {
+              console.warn(`Autoplay bloqueado en ${carouselId}, reintentando...`);
+              setTimeout(() => video.play(), 500);
+            });
+          }
+        }
+      });
     });
 
-}
+    // Cuando cambia de slide, reproduce el nuevo video
+    carouselEl.addEventListener('slid.bs.carousel', () => {
+      const activeVideo = carouselEl.querySelector('.carousel-item.active video') as HTMLVideoElement;
+      if (activeVideo) {
+        activeVideo.currentTime = 0;
+        activeVideo.play().catch(() => {
+          console.warn(`No se pudo reproducir el video activo en ${carouselId}`);
+        });
+      }
+    });
+
+    // Inicia el primer video manualmente
+    const firstVideo = carouselEl.querySelector('.carousel-item.active video') as HTMLVideoElement;
+    if (firstVideo) {
+      setTimeout(() => firstVideo.play(), 300);
+    }
+  }
   currentSlide = 0;
   intervalId: any;
 startCarousel(): void {
