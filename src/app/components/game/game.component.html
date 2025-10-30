@@ -61,7 +61,7 @@
             </div>
           </div>
 
- 
+
         </div>
 
 
@@ -119,6 +119,10 @@
               <label class="form-label">Cédula</label>
               <input type="text" class="form-control" [(ngModel)]="playerCedula" name="cedula" required />
             </div>
+            <div class="mb-3">
+              <label class="form-label">Teléfono</label>
+              <input type="text" class="form-control" [(ngModel)]="playerTelefono" name="telefono" required />
+            </div>
           </form>
         </div>
         <div class="modal-footer border-0">
@@ -130,67 +134,57 @@
   </div>
   <!-- Tablero del juego -->
   @if (!loading && !error && playerRegistered && gameState.isGameStarted && !gameState.isGameCompleted) {
-  <div class="game-board-layout d-flex  ">
-    <!-- Header lateral izquierdo -->
-    <div class="game-sidebar-left p-3 text-white text-center">
-      <div class="sidebar-top">
-        <img src="https://teamcellmania-public.s3.us-east-1.amazonaws.com/eventologos/logo-teamcellmania.png"
-          alt="Logo">
-        <h5>{{ event?.name }}</h5>
-        <p class="small">{{ event?.location }}</p>
-      </div>
-      <div class="image-carousel">
-        <div class="carousel-track" [style.transform]="'translateY(-' + carouselIndex * 110 + 'px)'">
-          <div class="carousel-item" *ngFor="let img of event?.images">
-            <img [src]="img.img" [alt]="img.nameempresa">
-          </div>
-        </div>
-      </div>
-      <div class="socials">
-        <a href="#" target="_blank"><i class="fab fa-tiktok"></i> TikTok</a>
-        <a href="#" target="_blank"><i class="fab fa-instagram"></i> Instagram</a>
-        <a href="#" target="_blank"><i class="fab fa-facebook"></i> Facebook</a>
-        <a href="#" target="_blank"><i class="fab fa-youtube"></i> YouTube</a>
-      </div>
-    </div>
+  <div class="game-board-layout">
+    <!-- 🧭 Banner Izquierdo -->
+    <aside class="sidebar left text-white text-center p-3">
+      <img [src]="event?.img" alt="Logo" class="event-logo">
+      <h5>{{ event?.name }}</h5>
+      <p class="small">{{ event?.location }}</p>
 
-    <!-- Tablero central -->
-    <div class="game-grid-container container-fluid flex-grow-1 d-flex justify-content-center align-items-center ">
-      <div class="cards-grid p-4">
-        @for (card of gameState.cards; track card.id) {
-        <div class="game-card" [class.flipped]="card.isFlipped || card.isMatched" (click)="onCardClick(card)">
-          <div class="card-inner">
-            <div class="card-front">
-              <img src="https://teamcellmania-public.s3.us-east-1.amazonaws.com/eventologos/logo-teamcellmania.png"
-                alt="Logo" class="front-logo">
-            </div>
-            <div class="card-back">
-              <img [src]="card.image" [alt]="card.nameempresa" class="card-image" />
-
-            </div>
-          </div>
-        </div>
-        }
-      </div>
-    </div>
-
-    <!-- Score lateral derecho -->
-    <div class="game-sidebar-right text-center p-4 bg-white bg-opacity-75">
-      <div class="info-item mb-3">
-        <div class="info-label">Tiempo</div>
-        <div class="info-value text-primary fw-bold">{{ formatTime(timer) }}</div>
-      </div>
-      <div class="info-item mb-3">
-        <div class="info-label">Movimientos</div>
-        <div class="info-value text-success fw-bold">{{ gameState.moves }}</div>
-      </div>
-      <div class="info-item">
-        <div class="info-label">Pares</div>
-        <div class="info-value text-warning fw-bold">{{ matchedPairs }}/{{ totalPairs }}</div>
-      </div>
+<div class="vertical-carousel">
+  <div class="carousel-track" [style.transform]="'translateY(-' + carouselIndex * 110 + 'px)'">
+    <div class="carousel-item" *ngFor="let img of event?.images">
+      <img [src]="img.img" [alt]="img.nameempresa" />
     </div>
   </div>
+</div>
+    </aside>
+
+    <!-- 🎮 Tablero de juego -->
+    <main class="game-grid">
+      @for (card of gameState.cards; track card.id) {
+      <div class="game-card" [class.flipped]="card.isFlipped || card.isMatched" (click)="onCardClick(card)">
+        <div class="card-inner">
+          <div class="card-front">
+            <img src="https://teamcellmania-public.s3.us-east-1.amazonaws.com/eventologos/logo-teamcellmania.png"
+              alt="Logo" class="front-logo">
+          </div>
+          <div class="card-back">
+            <img [src]="card.image" [alt]="card.nameempresa" class="card-image" />
+          </div>
+        </div>
+      </div>
+      }
+    </main>
+
+    <!-- 📊 Banner Derecho -->
+    <aside class="sidebar right bg-white bg-opacity-75 text-center p-3">
+      <div>
+        <p class="info-label">Tiempo</p>
+        <p class="info-value text-primary">{{ formatTime(timer) }}</p>
+      </div>
+      <div>
+        <p class="info-label">Movimientos</p>
+        <p class="info-value text-success">{{ gameState.moves }}</p>
+      </div>
+      <div>
+        <p class="info-label">Pares</p>
+        <p class="info-value text-warning">{{ matchedPairs }}/{{ totalPairs }}</p>
+      </div>
+    </aside>
+  </div>
   }
+
 
   <!-- Pantalla de juego completado -->
   @if (gameState.isGameCompleted) {

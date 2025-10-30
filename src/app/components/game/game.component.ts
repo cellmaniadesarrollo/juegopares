@@ -25,6 +25,7 @@ export class GameComponent {
 
   playerName = '';
   playerCedula = '';
+  playerTelefono='';
   playerRegistered = false;
   playerId: string | null | undefined = null;
   playerModal?: bootstrap.Modal;
@@ -69,7 +70,7 @@ export class GameComponent {
       next: (event) => {
         if (event) {
           this.event = event;    
-                
+                console.log(this.event)
           this.loading = false;
            // 🚀 inicia el juego directamente
           this.startCarousel();
@@ -98,7 +99,7 @@ export class GameComponent {
   registerPlayer(): void {
     if (!this.playerName || !this.playerCedula) return;
 
-    this.playerService.getOrCreatePlayer(this.playerName, this.playerCedula).subscribe({
+    this.playerService.getOrCreatePlayer(this.playerName, this.playerCedula,this.playerTelefono).subscribe({
       next: ({ player }) => {
         this.playerRegistered = true;
         this.playerId = player.id;
@@ -231,8 +232,6 @@ export class GameComponent {
     return shuffled;
   }
 
- carouselIndex = 0;
-carouselInterval?: Subscription;
 
 
 
@@ -307,37 +306,48 @@ carouselInterval?: Subscription;
   }
 
 
-
-
+ currentSlide = 0;
 
 
  
-  currentSlide = 0;
-  intervalId: any;
-startCarousel(): void {
-  if (!this.event?.images) return;
-      this.intervalId = setInterval(() => {
-      this.nextSlide();
-    }, 4000);
-  // this.carouselInterval = interval(2000).subscribe(() => {
-  //   this.carouselIndex++;
-  //   if (this.carouselIndex >= this.event.images.length) {
-  //     this.carouselIndex = 0;
-  //   }
-  // });
-}
- nextSlide(): void {
-    this.currentSlide = (this.currentSlide + 1) % this.event.images.length;
-  }
+carouselInterval?: Subscription;
 
-  prevSlide(): void {
-    this.currentSlide =
-      (this.currentSlide - 1 + this.event.images.length) % this.event.images.length;
+ carouselIndex = 0;
+intervalId: any;
+
+startCarousel(): void {
+  if (!this.event?.images || this.event.images.length <= 3) return;
+
+  // Borra intervalos previos por seguridad
+  if (this.intervalId) clearInterval(this.intervalId);
+
+  this.intervalId = setInterval(() => {
+    this.nextSlide();
+  }, 4000); // cada 4 segundos
+}
+
+nextSlide(): void {
+  if (!this.event?.images) return;
+
+  // Avanza de 1 en 1
+  this.carouselIndex++;
+  // Evita pasar el último visible
+  if (this.carouselIndex > this.event.images.length - 3) {
+    this.carouselIndex = 0;
   }
+}
+
+prevSlide(): void {
+  if (!this.event?.images) return;
+
+  this.carouselIndex--;
+  if (this.carouselIndex < 0) {
+    this.carouselIndex = this.event.images.length - 3;
+  }
+}
+
 ngOnDestroy(): void {
-  if (this.timerSub) this.timerSub.unsubscribe();
-  if (this.carouselInterval) this.carouselInterval.unsubscribe();
-  clearInterval(this.intervalId);
+  if (this.intervalId) clearInterval(this.intervalId);
 }
  
 }

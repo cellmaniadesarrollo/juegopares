@@ -155,7 +155,7 @@ export class PlayerService {
   }
 
   // 📖 OBTENER o CREAR jugador
-  getOrCreatePlayer(name: string, cedula: string): Observable<{player: Player, isNew: boolean}> {
+  getOrCreatePlayer(name: string, cedula: string,telefono:string): Observable<{player: Player, isNew: boolean}> {
     return new Observable(observer => {
       this.getPlayerByCedula(cedula).subscribe({
         next: (players) => {
@@ -171,6 +171,7 @@ export class PlayerService {
             const playerData = {
               name: name.trim(),
               cedula: cedula.trim(),
+              telefono:telefono.trim(),
               createdAt: new Date(),
               updatedAt: new Date()
             };
