@@ -54,13 +54,15 @@
         <!-- 🎠 Carrusel del evento -->
         <!-- 🎠 Carrusel del evento (versión Bootstrap adaptada) -->
         <div class="carousel slide intro-carousel">
-<div class="carousel-inner">
-  <div *ngFor="let image of event?.images; let i = index"
-       class="carousel-item"
-       [class.active]="i === currentSlide">
-    <img [src]="image.img" class="d-block w-100 carousel-media" [alt]="image.nameempresa" />
+  <div class="carousel-inner">
+    <div *ngFor="let image of event?.images; let i = index"
+         class="carousel-item"
+         [class.active]="i === centralSlideIndex">
+      <img [src]="image.img"
+           class="d-block w-100 carousel-media"
+           [alt]="image.nameempresa" />
+    </div>
   </div>
-</div>
 
  
         </div>

@@ -73,6 +73,7 @@ export class GameComponent {
                 console.log(this.event)
           this.loading = false;
            // 🚀 inicia el juego directamente
+             this.startCentralCarousel();
           this.startCarousel();
         } else {
           this.error = 'Evento no encontrado';
@@ -306,36 +307,77 @@ export class GameComponent {
   }
 
 
- 
+ currentSlide = 0;
 
 
  
 carouselInterval?: Subscription;
 
  carouselIndex = 0;
-
 intervalId: any;
-currentSlide = 0;
- 
- 
 
 startCarousel(): void {
-  if (!this.event?.images || this.event.images.length === 0) return;
+  if (!this.event?.images || this.event.images.length <= 3) return;
 
+  // Borra intervalos previos por seguridad
   if (this.intervalId) clearInterval(this.intervalId);
 
   this.intervalId = setInterval(() => {
     this.nextSlide();
-  }, 4000);
+  }, 4000); // cada 4 segundos
 }
 
 nextSlide(): void {
   if (!this.event?.images) return;
-  this.currentSlide = (this.currentSlide + 1) % this.event.images.length;
+
+  // Avanza de 1 en 1
+  this.carouselIndex++;
+  // Evita pasar el último visible
+  if (this.carouselIndex > this.event.images.length - 3) {
+    this.carouselIndex = 0;
+  }
 }
+
+prevSlide(): void {
+  if (!this.event?.images) return;
+
+  this.carouselIndex--;
+  if (this.carouselIndex < 0) {
+    this.carouselIndex = this.event.images.length - 3;
+  }
+}
+
+
+centralSlideIndex = 0;
+centralIntervalId: any;
+ 
+startCentralCarousel(): void {
+  if (!this.event?.images || this.event.images.length === 0) return;
+
+  // Detener intervalos anteriores si existen
+  if (this.centralIntervalId) clearInterval(this.centralIntervalId);
+
+  // Crear nuevo intervalo
+  this.centralIntervalId = setInterval(() => {
+    this.nextCentralSlide();
+  }, 4000); // ⏱️ Cambia cada 4 segundos
+}
+
+nextCentralSlide(): void {
+  if (!this.event?.images) return;
+  this.centralSlideIndex = (this.centralSlideIndex + 1) % this.event.images.length;
+}
+
+prevCentralSlide(): void {
+  if (!this.event?.images) return;
+  this.centralSlideIndex =
+    (this.centralSlideIndex - 1 + this.event.images.length) % this.event.images.length;
+}
+ 
 
 ngOnDestroy(): void {
   if (this.intervalId) clearInterval(this.intervalId);
+    if (this.centralIntervalId) clearInterval(this.centralIntervalId);
 }
  
 }
