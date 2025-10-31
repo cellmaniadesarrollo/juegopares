@@ -57,7 +57,7 @@ export class GameComponent {
   ngOnInit(): void {
     this.route.params.subscribe(params => {
       this.eventId = params['eventId'];
-      this.loadEvent();
+      this.loadEvent(); 
     });
   }
 
@@ -306,44 +306,32 @@ export class GameComponent {
   }
 
 
- currentSlide = 0;
+ 
 
 
  
 carouselInterval?: Subscription;
 
  carouselIndex = 0;
+
 intervalId: any;
+currentSlide = 0;
+ 
+ 
 
 startCarousel(): void {
-  if (!this.event?.images || this.event.images.length <= 3) return;
+  if (!this.event?.images || this.event.images.length === 0) return;
 
-  // Borra intervalos previos por seguridad
   if (this.intervalId) clearInterval(this.intervalId);
 
   this.intervalId = setInterval(() => {
     this.nextSlide();
-  }, 4000); // cada 4 segundos
+  }, 4000);
 }
 
 nextSlide(): void {
   if (!this.event?.images) return;
-
-  // Avanza de 1 en 1
-  this.carouselIndex++;
-  // Evita pasar el último visible
-  if (this.carouselIndex > this.event.images.length - 3) {
-    this.carouselIndex = 0;
-  }
-}
-
-prevSlide(): void {
-  if (!this.event?.images) return;
-
-  this.carouselIndex--;
-  if (this.carouselIndex < 0) {
-    this.carouselIndex = this.event.images.length - 3;
-  }
+  this.currentSlide = (this.currentSlide + 1) % this.event.images.length;
 }
 
 ngOnDestroy(): void {

@@ -54,14 +54,15 @@
         <!-- 🎠 Carrusel del evento -->
         <!-- 🎠 Carrusel del evento (versión Bootstrap adaptada) -->
         <div class="carousel slide intro-carousel">
-          <div class="carousel-inner">
-            <div *ngFor="let image of event?.images; let i = index" class="carousel-item"
-              [class.active]="i === currentSlide">
-              <img [src]="image.img" class="d-block w-100 carousel-media" [alt]="image.nameempresa" />
-            </div>
-          </div>
+<div class="carousel-inner">
+  <div *ngFor="let image of event?.images; let i = index"
+       class="carousel-item"
+       [class.active]="i === currentSlide">
+    <img [src]="image.img" class="d-block w-100 carousel-media" [alt]="image.nameempresa" />
+  </div>
+</div>
 
-
+ 
         </div>
 
 
@@ -141,13 +142,13 @@
       <h5>{{ event?.name }}</h5>
       <p class="small">{{ event?.location }}</p>
 
-<div class="vertical-carousel">
-  <div class="carousel-track" [style.transform]="'translateY(-' + carouselIndex * 110 + 'px)'">
-    <div class="carousel-item" *ngFor="let img of event?.images">
-      <img [src]="img.img" [alt]="img.nameempresa" />
-    </div>
-  </div>
-</div>
+      <div class="vertical-carousel">
+        <div class="carousel-track" [style.transform]="'translateY(-' + carouselIndex * 110 + 'px)'">
+          <div class="carousel-item" *ngFor="let img of event?.images">
+            <img [src]="img.img" [alt]="img.nameempresa" />
+          </div>
+        </div>
+      </div>
     </aside>
 
     <!-- 🎮 Tablero de juego -->
@@ -209,3 +210,11 @@
   </div>
   }
 </div>
+
+
+
+
+
+
+
+
