@@ -105,36 +105,120 @@
 
 
   <!-- Modal de ingreso jugador -->
-  <div class="modal fade" id="playerModal" tabindex="-1">
-    <div class="modal-dialog modal-dialog-centered">
-      <div class="modal-content bg-dark text-white">
-        <div class="modal-header border-0">
-          <h5 class="modal-title">👤 Ingresa tus datos</h5>
-          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-        </div>
-        <div class="modal-body">
-          <form #playerForm="ngForm">
-            <div class="mb-3">
-              <label class="form-label">Nombre completo</label>
-              <input type="text" class="form-control" [(ngModel)]="playerName" name="name" required />
+<div class="modal fade" id="playerModal" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content bg-dark text-white position-relative overflow-hidden">
+      <div class="modal-header border-0">
+        <h5 class="modal-title">👤 Ingresa tus datos</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      </div>
+
+      <!-- 🌀 Overlay spinner -->
+      <div
+        *ngIf="showOverlaySpinner"
+        class="position-absolute top-0 start-0 w-100 h-100 d-flex flex-column align-items-center justify-content-center bg-dark bg-opacity-75 z-50"
+      >
+        <div class="spinner-border text-light mb-3" style="width: 3rem; height: 3rem"></div>
+        <div>Procesando jugador...</div>
+      </div>
+
+      <!-- ✅ Check de éxito -->
+      <div
+        *ngIf="showSuccessCheck"
+        class="position-absolute top-0 start-0 w-100 h-100 d-flex flex-column align-items-center justify-content-center bg-dark bg-opacity-75 z-50"
+      >
+        <i class="bi bi-check-circle text-success" style="font-size: 4rem"></i>
+        <div class="mt-2">{{ successMessage }}</div>
+      </div>
+
+      <div class="modal-body" [class.opacity-50]="showOverlaySpinner || showSuccessCheck">
+        <form #playerForm="ngForm">
+          <div class="mb-3 position-relative">
+            <label class="form-label">Cédula</label>
+            <input
+              type="text"
+              class="form-control"
+              [(ngModel)]="playerCedula"
+              name="cedula"
+              required
+              maxlength="10"
+              (ngModelChange)="onCedulaChange($event)"
+              [disabled]="showOverlaySpinner || showSuccessCheck"
+            />
+            <div
+              *ngIf="isCheckingCedula"
+              class="spinner-border spinner-border-sm text-light position-absolute end-0 top-50 translate-middle-y me-3"
+            ></div>
+            <div *ngIf="cedulaInvalid" class="text-danger mt-1">❌ Cédula inválida</div>
+            <div *ngIf="playerExists && !cedulaInvalid" class="text-success mt-1">✅ Jugador encontrado</div>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label">Nombre completo</label>
+            <input
+              type="text"
+              class="form-control"
+              [(ngModel)]="playerName"
+              name="name"
+              required
+              [readonly]="playerExists"
+              [disabled]="showOverlaySpinner || showSuccessCheck"
+            />
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label">Teléfono</label>
+            <input
+              type="text"
+              class="form-control"
+              [(ngModel)]="playerTelefono"
+              name="telefono"
+              required
+              maxlength="10"
+              (blur)="validatePhone()"
+              [disabled]="showOverlaySpinner || showSuccessCheck"
+            />
+            <div *ngIf="phoneInvalid" class="text-danger mt-1">
+              ❌ Teléfono inválido (debe empezar con 09)
             </div>
-            <div class="mb-3">
-              <label class="form-label">Cédula</label>
-              <input type="text" class="form-control" [(ngModel)]="playerCedula" name="cedula" required />
-            </div>
-            <div class="mb-3">
-              <label class="form-label">Teléfono</label>
-              <input type="text" class="form-control" [(ngModel)]="playerTelefono" name="telefono" required />
-            </div>
-          </form>
+          </div>
+        </form>
+
+        <div *ngIf="errorMessage" class="text-danger text-center mt-2 fw-bold">
+          {{ errorMessage }}
         </div>
-        <div class="modal-footer border-0">
-          <button class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-          <button class="btn btn-success" (click)="registerPlayer()">Guardar y Jugar</button>
-        </div>
+      </div>
+
+      <div class="modal-footer border-0">
+        <button
+          class="btn btn-secondary"
+          data-bs-dismiss="modal"
+          [disabled]="isRegistering || showOverlaySpinner || showSuccessCheck"
+        >
+          Cancelar
+        </button>
+
+        <button
+          class="btn btn-success d-flex align-items-center justify-content-center gap-2"
+          (click)="registerPlayer()"
+          [disabled]="
+            isRegistering ||
+            cedulaInvalid ||
+            phoneInvalid ||
+            !playerCedula ||
+            !playerTelefono ||
+            !playerName ||
+            showOverlaySpinner ||
+            showSuccessCheck
+          "
+        >
+          <span>Guardar y Jugar</span>
+        </button>
       </div>
     </div>
   </div>
+</div>
+
   <!-- Tablero del juego -->
   @if (!loading && !error && playerRegistered && gameState.isGameStarted && !gameState.isGameCompleted) {
   <div class="game-board-layout">
@@ -190,19 +274,22 @@
 
 
   <!-- Pantalla de juego completado -->
-  @if (gameState.isGameCompleted) {
+ @if (gameState.isGameCompleted) {
   <div class="completion-screen d-flex justify-content-center align-items-center vh-100">
     <div class="card completion-card text-center p-5">
       <i class="fas fa-trophy display-1 text-warning mb-3"></i>
       <h3 class="fw-bold mb-3">¡Juego Completado!</h3>
+
       <div class="mb-4">
         <p><strong>Tiempo:</strong> {{ formatTime(timer) }}</p>
         <p><strong>Movimientos:</strong> {{ gameState.moves }}</p>
         <p><strong>Pares:</strong> {{ matchedPairs }}/{{ totalPairs }}</p>
+        <p><strong>Puntaje:</strong> {{ playerSocre }}</p> <!-- 👈 agregado -->
       </div>
+
       <div>
-        <button class="btn btn-primary me-2" (click)="playAgain()">
-          <i class="fas fa-redo me-2"></i> Jugar Otra Vez
+        <button class="btn btn-primary me-2" (click)="resetToEventLoadState()">
+          <i class="fas fa-redo me-2"></i> Aceptar
         </button>
         <button class="btn btn-warning" (click)="viewRanking()">
           <i class="fas fa-trophy me-2"></i> Ver Ranking
@@ -210,8 +297,7 @@
       </div>
     </div>
   </div>
-  }
-</div>
+}
 
 
 

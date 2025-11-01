@@ -2,6 +2,7 @@ export interface Player {
   id?: string;
   name: string;
   cedula: string;
+  telefono: string;
   createdAt: Date | any;
   updatedAt: Date | any;
 }
@@ -9,6 +10,7 @@ export interface Player {
 export interface PlayerScore {
   id?: string;
   playerId: string;
+  playerName:string;
   eventId: string;
   eventName: string;
   score: number;
@@ -16,7 +18,7 @@ export interface PlayerScore {
   moves: number;
   matchedPairs: number;
   totalPairs: number;
-  createdAt: Date | any;
+  createdAt?: Date | any;
 }
 
 export interface GameState {

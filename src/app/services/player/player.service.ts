@@ -10,7 +10,8 @@ import {
   doc,
   updateDoc,
   Timestamp,
-  collectionGroup
+  collectionGroup,
+  limit 
 } from 'firebase/firestore';
 import { Player, PlayerScore } from '../../models/player.model';
 import { FirebaseService } from '../firebase/firebase.service';
@@ -22,7 +23,7 @@ import { Observable, from, map } from 'rxjs';
 export class PlayerService {
 
   private playersCollection = 'players';
-  private scoresCollection = 'scores';
+  private scoresCollection = 'scores'; 
 
   constructor(private firebaseService: FirebaseService) { }
 
@@ -115,38 +116,59 @@ export class PlayerService {
     const q = query(
       scoresGroupRef, 
       where('eventId', '==', eventId),
-      orderBy('score', 'desc'),
-      orderBy('time', 'asc'),
-      orderBy('createdAt', 'desc')
+    orderBy('score', 'desc'),
+    orderBy('time', 'asc'),
+    orderBy('createdAt', 'desc')
     );
 
-    return from(getDocs(q)).pipe(
-      map(snapshot => 
-        snapshot.docs.map(doc => {
-          const data = doc.data();
-          return {
-            id: doc.id,
-            ...data,
-            createdAt: data['createdAt']?.toDate?.() || new Date(data['createdAt'])
-          } as PlayerScore;
-        })
-      )
-    );
+  return from(getDocs(q)).pipe(
+    map(snapshot =>
+      snapshot.docs.map(doc => {
+        const data = doc.data();
+        return {
+          id: doc.id,
+          ...data,
+          createdAt: data['createdAt']?.toDate?.() || new Date(data['createdAt'])
+        } as PlayerScore;
+      })
+    )
+  );
   }
 
   // 📖 OBTENER ranking de un evento con información del jugador
-  getEventRanking(eventId: string): Observable<any[]> {
-    return this.getScoresByEvent(eventId).pipe(
-      map(scores => {
-        // Aquí podrías enriquecer con información del jugador si es necesario
-        return scores.map(score => ({
-          ...score,
-          // Podemos agregar más información del jugador aquí si la tenemos
-        }));
-      })
-    );
-  }
+getEventRanking(eventId: string): Observable<any[]> {
+  return this.getScoresByEvent(eventId).pipe(
+    map(scores => {
+      // 🔹 Mapa para guardar solo el mejor score por jugador
+      const bestScoresMap = new Map<string, any>();
 
+      for (const score of scores) {
+        const existing = bestScoresMap.get(score.playerName);
+        if (!existing || score.score > existing.score) {
+          bestScoresMap.set(score.playerName, score);
+        }
+      }
+
+      // 🔹 Convertir a array
+      const uniqueScores = Array.from(bestScoresMap.values());
+
+      // 🔹 Ordenar: primero por score desc, luego por time asc
+      uniqueScores.sort((a, b) => b.score - a.score || a.time - b.time);
+
+      // 🔹 Tomar los 5 mejores
+      const top5 = uniqueScores.slice(0, 5);
+
+      // 🔹 Agregar posición (ranking)
+      return top5.map((score, index) => ({
+        position: index + 1,
+        playerName: score.playerName,
+        score: score.score,
+        time: score.time,
+        createdAt: score.createdAt,
+      }));
+    })
+  );
+}
   // 📖 VERIFICAR si un jugador ya existe por cédula
   checkPlayerExists(cedula: string): Observable<boolean> {
     return this.getPlayerByCedula(cedula).pipe(

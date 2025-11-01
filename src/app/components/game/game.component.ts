@@ -8,28 +8,30 @@ import { EventService } from '../../services/event/event.service';
 import { PlayerService } from '../../services/player/player.service';
 import { Subscription, interval } from 'rxjs';
 import * as bootstrap from 'bootstrap';
-import { Carousel } from 'bootstrap'; 
+import { Carousel } from 'bootstrap';
+import { Subject } from 'rxjs';
+import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
 @Component({
   selector: 'app-game',
-  imports: [CommonModule, FormsModule, RouterModule ] ,
+  imports: [CommonModule, FormsModule, RouterModule],
   templateUrl: './game.component.html',
   styleUrl: './game.component.scss'
 })
 export class GameComponent {
-  
-   @ViewChild('videoCarouselLeft', { static: false }) carouselElement!: ElementRef;
-   eventId!: string;
+
+  @ViewChild('videoCarouselLeft', { static: false }) carouselElement!: ElementRef;
+  eventId!: string;
   event: any;
   loading = false;
   error: string | null = null;
 
   playerName = '';
   playerCedula = '';
-  playerTelefono='';
+  playerTelefono = '';
   playerRegistered = false;
   playerId: string | null | undefined = null;
   playerModal?: bootstrap.Modal;
-
+  playerSocre = 0;
   // Estado del juego
   gameState = {
     isGameStarted: false,
@@ -52,28 +54,33 @@ export class GameComponent {
     private route: ActivatedRoute,
     private eventService: EventService,
     private playerService: PlayerService
-  ) {}
+  ) { 
+        this.searchCedula$
+      .pipe(debounceTime(600), distinctUntilChanged())
+      .subscribe((cedula) => this.checkCedula(cedula));
+  }
 
   ngOnInit(): void {
     this.route.params.subscribe(params => {
       this.eventId = params['eventId'];
-      this.loadEvent(); 
+      this.loadEvent();
+      this.viewRanking()
     });
   }
 
- 
- 
+
+
   /** 🔹 Cargar evento desde Firebase */
   loadEvent(): void {
     this.loading = true;
     this.eventService.getEventById(this.eventId).subscribe({
       next: (event) => {
         if (event) {
-          this.event = event;    
-                console.log(this.event)
+          this.event = event;
+          console.log(this.event)
           this.loading = false;
-           // 🚀 inicia el juego directamente
-             this.startCentralCarousel();
+          // 🚀 inicia el juego directamente
+          this.startCentralCarousel();
           this.startCarousel();
         } else {
           this.error = 'Evento no encontrado';
@@ -95,35 +102,142 @@ export class GameComponent {
       this.playerModal.show();
     }
   }
+ 
 
-  /** 🧍 Registrar jugador y comenzar */
-  registerPlayer(): void {
-    if (!this.playerName || !this.playerCedula) return;
+  isCheckingCedula = false;
+  isRegistering = false;
+  cedulaInvalid = false;
+  phoneInvalid = false;
+  playerExists = false;
+  successMessage = '';
+  errorMessage = '';
+  showOverlaySpinner = false;
+showSuccessCheck = false;
+  searchCedula$ = new Subject<string>();
+  /** 🧍 Registrar jugador y comenzar */ 
+   // 👁️ Validar y buscar jugador por cédula
+  checkCedula(cedula: string) {
+    this.cedulaInvalid = false;
+    this.playerExists = false;
+    this.playerName = '';
+    this.playerTelefono = '';
+    this.successMessage = '';
+    this.errorMessage = '';
 
-    this.playerService.getOrCreatePlayer(this.playerName, this.playerCedula,this.playerTelefono).subscribe({
-      next: ({ player }) => {
-        this.playerRegistered = true;
-        this.playerId = player.id;
-        this.playerModal?.hide();
-        this.initGame();
+    if (!this.isValidEcuadorianCedula(cedula)) {
+      this.cedulaInvalid = true;
+      return;
+    }
+
+    this.isCheckingCedula = true;
+
+    this.playerService.getPlayerByCedula(cedula).subscribe({
+      next: (players) => {
+        this.isCheckingCedula = false;
+        if (players.length > 0) {
+          const player = players[0];
+          this.playerExists = true;
+          this.playerName = player.name;
+          this.playerTelefono = player.telefono;
+          this.playerId = player.id;
+        }
       },
-      error: (err) => {
-        console.error(err);
-        alert('Error al registrar jugador.');
+      error: () => {
+        this.isCheckingCedula = false;
       }
     });
   }
 
+  onCedulaChange(cedula: string) {
+    this.searchCedula$.next(cedula);
+  }
+
+  validatePhone() {
+    this.phoneInvalid = !this.isValidPhone(this.playerTelefono);
+  }
+
+  /** 🧍 Registrar jugador y comenzar */
+registerPlayer(): void {
+  if (!this.playerName || !this.playerCedula || !this.playerTelefono) return;
+  if (this.cedulaInvalid || this.phoneInvalid) return;
+
+  this.isRegistering = true;
+  this.showOverlaySpinner = true;
+  this.showSuccessCheck = false;
+  this.successMessage = '';
+  this.errorMessage = '';
+
+  this.playerService
+    .getOrCreatePlayer(this.playerName, this.playerCedula, this.playerTelefono)
+    .subscribe({
+      next: ({ player, isNew }) => {
+        this.playerId = player.id;
+        this.successMessage = isNew
+          ? '✅ Jugador registrado correctamente'
+          : '✅ Jugador encontrado';
+
+        this.isRegistering = false;
+        this.showOverlaySpinner = false;
+        this.showSuccessCheck = true; // ✅ Mostrar icono de éxito
+        this.playerRegistered = true;
+
+        // Esperar un momento antes de cerrar el modal
+        setTimeout(() => {
+          this.showSuccessCheck = false;
+          this.playerModal?.hide();
+          this.initGame();
+        }, 1000);
+      },
+      error: (err) => {
+        console.error(err);
+        this.isRegistering = false;
+        this.showOverlaySpinner = false;
+        this.errorMessage = '❌ Error al registrar jugador.';
+      }
+    });
+}
+
+  // ✅ Validadores reutilizables
+  isValidEcuadorianCedula(cedula: string): boolean {
+    if (!/^\d{10}$/.test(cedula)) return false;
+
+    const provinceCode = parseInt(cedula.substring(0, 2), 10);
+    if (provinceCode < 1 || provinceCode > 24) return false;
+
+    const thirdDigit = parseInt(cedula.charAt(2), 10);
+    if (thirdDigit >= 6) return false;
+
+    const digits = cedula.split('').map(Number);
+    const verifier = digits.pop()!;
+    let sum = 0;
+
+    digits.forEach((d, i) => {
+      if (i % 2 === 0) {
+        let mult = d * 2;
+        if (mult > 9) mult -= 9;
+        sum += mult;
+      } else {
+        sum += d;
+      }
+    });
+
+    const checkDigit = (10 - (sum % 10)) % 10;
+    return checkDigit === verifier;
+  }
+
+  isValidPhone(telefono: string): boolean {
+    return /^09\d{8}$/.test(telefono);
+  }
   /** 🔹 Inicializa el juego (mezcla y crea las cartas) */
   initGame(): void {
     if (!this.event) return;
 
     // Si no hay imágenes en el evento, usa un set de prueba
-    const imagesSource =   this.event.images 
- 
+    const imagesSource = this.event.images
+
     this.selectedImages = this.selectRandomImages(imagesSource, 8);
 
-    const cards: GameCard[] = []; 
+    const cards: GameCard[] = [];
     this.selectedImages.forEach((img, index) => {
       cards.push({
         id: `card-${index}-1`,
@@ -140,7 +254,7 @@ export class GameComponent {
         isMatched: false,
       });
     });
- 
+
     this.gameState.cards = this.shuffleArray(cards);
     this.gameState.isGameStarted = true;
     this.gameState.isGameCompleted = false;
@@ -197,18 +311,46 @@ export class GameComponent {
   /** 🔹 Completa el juego */
   completeGame(): void {
     this.gameState.isGameCompleted = true;
+
     if (this.timerSub) this.timerSub.unsubscribe();
+
+    // 🧮 Calcular puntaje
+    this.playerSocre = this.calculateScore(this.timer, this.gameState.moves, this.totalPairs);
+
+    // 🗂️ Preparar datos para guardar
+    const scoreData = {
+      playerId: this.playerId!,  // <- el "!" le dice a TypeScript: confía, no es nulo.
+      playerName: this.playerName!,
+      eventId: this.eventId,
+      eventName: this.event.name,
+      matchedPairs: this.matchedPairs,
+      totalPairs: this.totalPairs,
+      moves: this.gameState.moves,
+      time: this.timer,
+      score: this.playerSocre
+    };
+
+    // 💾 Guardar score en Firebase
+    this.playerService.createPlayerScore(scoreData).subscribe({
+      next: (id) => console.log(`✅ Score guardado con ID: ${id}`),
+      error: (err) => console.error('❌ Error al guardar score:', err)
+    });
   }
+  calculateScore(time: number, moves: number, totalPairs: number): number {
+    // Fórmula base: cuanto menor el tiempo y los movimientos, mayor el puntaje
+    const efficiency = (totalPairs / moves) * 100;
+    const speedBonus = Math.max(0, (totalPairs * 100) - time);
+    return Math.max(0, Math.round(efficiency + speedBonus));
+  }
+
+
+
 
   /** 🔹 Volver a jugar */
   playAgain(): void {
     this.initGame();
   }
 
-  /** 🔹 Ver ranking (solo placeholder) */
-  viewRanking(): void {
-    alert('Ranking próximamente disponible 🎯');
-  }
 
   /** 🔹 Formatea tiempo en mm:ss */
   formatTime(seconds: number): string {
@@ -307,77 +449,122 @@ export class GameComponent {
   }
 
 
- currentSlide = 0;
+  currentSlide = 0;
 
 
- 
-carouselInterval?: Subscription;
 
- carouselIndex = 0;
-intervalId: any;
+  carouselInterval?: Subscription;
 
-startCarousel(): void {
-  if (!this.event?.images || this.event.images.length <= 3) return;
+  carouselIndex = 0;
+  intervalId: any;
 
-  // Borra intervalos previos por seguridad
-  if (this.intervalId) clearInterval(this.intervalId);
+  startCarousel(): void {
+    if (!this.event?.images || this.event.images.length <= 3) return;
 
-  this.intervalId = setInterval(() => {
-    this.nextSlide();
-  }, 4000); // cada 4 segundos
-}
+    // Borra intervalos previos por seguridad
+    if (this.intervalId) clearInterval(this.intervalId);
 
-nextSlide(): void {
-  if (!this.event?.images) return;
-
-  // Avanza de 1 en 1
-  this.carouselIndex++;
-  // Evita pasar el último visible
-  if (this.carouselIndex > this.event.images.length - 3) {
-    this.carouselIndex = 0;
+    this.intervalId = setInterval(() => {
+      this.nextSlide();
+    }, 4000); // cada 4 segundos
   }
-}
 
-prevSlide(): void {
-  if (!this.event?.images) return;
+  nextSlide(): void {
+    if (!this.event?.images) return;
 
-  this.carouselIndex--;
-  if (this.carouselIndex < 0) {
-    this.carouselIndex = this.event.images.length - 3;
+    // Avanza de 1 en 1
+    this.carouselIndex++;
+    // Evita pasar el último visible
+    if (this.carouselIndex > this.event.images.length - 3) {
+      this.carouselIndex = 0;
+    }
   }
-}
+
+  prevSlide(): void {
+    if (!this.event?.images) return;
+
+    this.carouselIndex--;
+    if (this.carouselIndex < 0) {
+      this.carouselIndex = this.event.images.length - 3;
+    }
+  }
 
 
-centralSlideIndex = 0;
-centralIntervalId: any;
- 
-startCentralCarousel(): void {
-  if (!this.event?.images || this.event.images.length === 0) return;
+  centralSlideIndex = 0;
+  centralIntervalId: any;
 
-  // Detener intervalos anteriores si existen
-  if (this.centralIntervalId) clearInterval(this.centralIntervalId);
+  startCentralCarousel(): void {
+    if (!this.event?.images || this.event.images.length === 0) return;
 
-  // Crear nuevo intervalo
-  this.centralIntervalId = setInterval(() => {
-    this.nextCentralSlide();
-  }, 4000); // ⏱️ Cambia cada 4 segundos
-}
-
-nextCentralSlide(): void {
-  if (!this.event?.images) return;
-  this.centralSlideIndex = (this.centralSlideIndex + 1) % this.event.images.length;
-}
-
-prevCentralSlide(): void {
-  if (!this.event?.images) return;
-  this.centralSlideIndex =
-    (this.centralSlideIndex - 1 + this.event.images.length) % this.event.images.length;
-}
- 
-
-ngOnDestroy(): void {
-  if (this.intervalId) clearInterval(this.intervalId);
+    // Detener intervalos anteriores si existen
     if (this.centralIntervalId) clearInterval(this.centralIntervalId);
-}
- 
+
+    // Crear nuevo intervalo
+    this.centralIntervalId = setInterval(() => {
+      this.nextCentralSlide();
+    }, 4000); // ⏱️ Cambia cada 4 segundos
+  }
+
+  nextCentralSlide(): void {
+    if (!this.event?.images) return;
+    this.centralSlideIndex = (this.centralSlideIndex + 1) % this.event.images.length;
+  }
+
+  prevCentralSlide(): void {
+    if (!this.event?.images) return;
+    this.centralSlideIndex =
+      (this.centralSlideIndex - 1 + this.event.images.length) % this.event.images.length;
+  }
+
+
+  ngOnDestroy(): void {
+    if (this.intervalId) clearInterval(this.intervalId);
+    if (this.centralIntervalId) clearInterval(this.centralIntervalId);
+  }
+
+
+  resetToEventLoadState(): void {
+    // 🔹 Estado visual
+    this.loading = false;
+    this.error = null;
+
+    // 🔹 Estado del jugador
+    this.playerRegistered = false;
+
+    // 🔹 Estado del juego
+    this.gameState = {
+      isGameStarted: false,
+      isGameCompleted: false,
+      cards: [],
+      moves: 0,
+    };
+    this.firstCard = null;
+    this.secondCard = null;
+    this.matchedPairs = 0;
+    this.timer = 0;
+    this.totalPairs = 8;
+
+    // 🔹 Detener temporizador si estaba activo
+    if (this.timerSub) {
+      this.timerSub.unsubscribe();
+      this.timerSub = undefined;
+    }
+  }
+
+  scores: any = []
+  viewRanking() {
+    this.playerService.getEventRanking(this.eventId).subscribe({
+      next: (scores) => {
+        this.scores = scores;
+        console.log('🏆 Ranking:', this.scores);
+        // Aquí puedes abrir tu modal o mostrar la lista
+      },
+      error: (err) => {
+        console.error('❌ Error al obtener el ranking:', err);
+      }
+    });
+  }
+
+
+
 }
